@@ -43,5 +43,7 @@ public class Scraper {
         System.out.println(workdays);
         System.out.println(saturdays);
         System.out.println(sundays);
+
+
     }
 }
