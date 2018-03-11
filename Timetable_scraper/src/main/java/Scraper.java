@@ -11,8 +11,15 @@ import java.util.regex.Pattern;
 
 public class Scraper {
 
-    void Timetable() throws IOException {
-        final Document document = Jsoup.connect("http://www.mpk.poznan.pl/component/transport/14/SZYM42/").get();
+    private String urlEnding;
+
+    public Scraper(){
+        urlEnding = new String();
+    }
+
+    static void Timetable(String station, int type) throws IOException {
+        String url = "http://www.mpk.poznan.pl/component/transport/" + station + "/";
+        final Document document = Jsoup.connect(url).get();
         ArrayList<String> Hours = new ArrayList<String>();
         ArrayList<String> Minutes = new ArrayList<String>();
         Map<String, String> workdays = new HashMap<String, String>();
@@ -51,22 +58,53 @@ public class Scraper {
         /*for (Map.Entry<String, String> entry : sundays.entrySet()) {
             System.out.println(entry.getKey() + ":" + entry.getValue().toString());
         }*/
-
-        for (int i=0; i<24; i++) {
-            System.out.println(i + " :  " + sundays.get(Integer.toString(i)));
+        switch (type){
+            case 0:
+                for (int i=0; i<24; i++) {
+                    System.out.println(i + " :  " + workdays.get(Integer.toString(i)));
+                }
+                break;
+            case 1:
+                for (int i=0; i<24; i++) {
+                    System.out.println(i + " :  " + saturdays.get(Integer.toString(i)));
+                }
+                break;
+            case 2:
+                for (int i=0; i<24; i++) {
+                    System.out.println(i + " :  " + sundays.get(Integer.toString(i)));
+                }
+                break;
+            default:
+                break;
         }
     }
 
-    void Station() throws IOException{
-        final Document document = Jsoup.connect("http://www.mpk.poznan.pl/component/transport/16/").get();
+    static void Station(String lineNr) throws IOException{
+        int counter = 0;
+        String url = "http://www.mpk.poznan.pl/component/transport/" + lineNr + "/";
+        final Document document = Jsoup.connect(url).get();
         Map<String, String> Left = new HashMap<String, String>();
         Map<String, String> Right = new HashMap<String, String>();
 
         for (Element row : document.select(".box_t_0 li")){
-            final String one_row = row.text();
-
+            counter++;
+            if (counter <= 2) {
+                continue;
+            }
+            final String one_row = row.outerHtml();
+            Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
+            Matcher matcher = pattern.matcher(one_row);
+            System.out.println(row.text());
+            if (matcher.find()) {
+                Left.put(row.text(), matcher.group(0));
+            }
         }
+        counter = 0;
         for (Element row : document.select(".box_t_1 li")){
+            counter++;
+            if (counter <= 2) {
+                continue;
+            }
             final String one_row = row.outerHtml();
             Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
             Matcher matcher = pattern.matcher(one_row);
@@ -74,14 +112,15 @@ public class Scraper {
                 Right.put(row.text(), matcher.group(0));
             }
         }
-        System.out.println(Right);
+        //System.out.println(Right);
     }
 
     void Line(){
 
     }
 
-    public static void main(String[] args) throws Exception {
-
+    public static void main(String[] args) throws IOException {
+        Station("12");
+        Timetable("12/SZYM42", 0);
     }
 }
