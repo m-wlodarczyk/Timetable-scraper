@@ -1,13 +1,18 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Scraper {
-    public static void main(String[] args) throws Exception {
-        final Document document = Jsoup.connect("http://www.mpk.poznan.pl/component/transport/16/SZYM42/").get();
+
+    void Timetable() throws IOException {
+        final Document document = Jsoup.connect("http://www.mpk.poznan.pl/component/transport/14/SZYM42/").get();
         ArrayList<String> Hours = new ArrayList<String>();
         ArrayList<String> Minutes = new ArrayList<String>();
         Map<String, String> workdays = new HashMap<String, String>();
@@ -40,10 +45,43 @@ public class Scraper {
             }
         }
 
-        System.out.println(workdays);
+        /*System.out.println(workdays);
         System.out.println(saturdays);
-        System.out.println(sundays);
+        System.out.println(sundays);*/
+        /*for (Map.Entry<String, String> entry : sundays.entrySet()) {
+            System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+        }*/
 
+        for (int i=0; i<24; i++) {
+            System.out.println(i + " :  " + sundays.get(Integer.toString(i)));
+        }
+    }
+
+    void Station() throws IOException{
+        final Document document = Jsoup.connect("http://www.mpk.poznan.pl/component/transport/16/").get();
+        Map<String, String> Left = new HashMap<String, String>();
+        Map<String, String> Right = new HashMap<String, String>();
+
+        for (Element row : document.select(".box_t_0 li")){
+            final String one_row = row.text();
+
+        }
+        for (Element row : document.select(".box_t_1 li")){
+            final String one_row = row.outerHtml();
+            Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
+            Matcher matcher = pattern.matcher(one_row);
+            if (matcher.find()) {
+                Right.put(row.text(), matcher.group(0));
+            }
+        }
+        System.out.println(Right);
+    }
+
+    void Line(){
+
+    }
+
+    public static void main(String[] args) throws Exception {
 
     }
 }
