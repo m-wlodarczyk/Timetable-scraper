@@ -3,18 +3,36 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Scraper {
 
     private String urlEnding;
+    static ArrayList<String> direction;
+    Set<String> tram_lines;
+    Set<String> bus_lines;
+    static Map<String, String> Left;
+    static Map<String, String> Right;
+
+    void printMap(Map<String, String> m){
+        for (Map.Entry<String, String> entry : m.entrySet()) {
+            System.out.println(entry.getKey()/*+" : "+entry.getValue()*/);
+        }
+    }
+
+    String getMapValue(String key, Map<String, String> m){
+        return m.get(key);
+    }
 
     public Scraper(){
         urlEnding = new String();
+        direction = new ArrayList<String>(2);
+        tram_lines = new LinkedHashSet<String>();
+        bus_lines = new LinkedHashSet<String>();
+        Left = new HashMap<String, String>();
+        Right = new HashMap<String, String>();
     }
 
     static void Timetable(String station, int type) throws IOException {
@@ -83,26 +101,25 @@ public class Scraper {
         int counter = 0;
         String url = "http://www.mpk.poznan.pl/component/transport/" + lineNr + "/";
         final Document document = Jsoup.connect(url).get();
-        Map<String, String> Left = new HashMap<String, String>();
-        Map<String, String> Right = new HashMap<String, String>();
 
         for (Element row : document.select(".box_t_0 li")){
             counter++;
             if (counter <= 2) {
+                direction.add(0, row.text());
                 continue;
             }
             final String one_row = row.outerHtml();
             Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
             Matcher matcher = pattern.matcher(one_row);
-            System.out.println(row.text());
             if (matcher.find()) {
                 Left.put(row.text(), matcher.group(0));
             }
         }
         counter = 0;
-        for (Element row : document.select(".box_t_1 li")){
+        for (Element row : document.select(".box_t_1 li")) {
             counter++;
             if (counter <= 2) {
+                direction.add(1, row.text());
                 continue;
             }
             final String one_row = row.outerHtml();
@@ -112,15 +129,19 @@ public class Scraper {
                 Right.put(row.text(), matcher.group(0));
             }
         }
-        //System.out.println(Right);
     }
 
-    void Line(){
-
-    }
-
-    public static void main(String[] args) throws IOException {
-        Station("12");
-        Timetable("12/SZYM42", 0);
+    void Lines() throws IOException{
+        final Document document = Jsoup.connect("http://www.mpk.poznan.pl/rozklad-jazdy").get();
+        for (Element row : document.select(".box_trams a")){
+            final String one_row = row.text();
+            tram_lines.add(one_row);
+        }
+        System.out.println(tram_lines);
+        for (Element row : document.select(".box_buses a")){
+            final String one_row = row.text();
+            bus_lines.add(one_row);
+        }
+        System.out.println(bus_lines);
     }
 }
