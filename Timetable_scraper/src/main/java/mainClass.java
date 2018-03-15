@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class mainClass {
     public static Scraper scraper = new Scraper();
 
-    public static void main(String[] args) throws IOException {
+    static void foo() throws IOException {
         String line, stop;
         int dir;
         Map<String, String> tmp = new HashMap<String, String>();
@@ -14,10 +14,10 @@ public class mainClass {
         System.out.print("Choose line: ");
         Scanner s = new Scanner(System.in);
         line = s.nextLine();
-        scraper.Station(line);
+        scraper.Station();
         System.out.println("1 - " + scraper.direction.get(0));
         System.out.println("2 - " + scraper.direction.get(1));
-        dir = s.nextInt();
+        dir = Integer.parseInt(s.nextLine());
         if (dir==1){
             scraper.printMap(scraper.Left);
             tmp = scraper.Left;
@@ -30,16 +30,22 @@ public class mainClass {
             stop = s.next();
             String ending = line + "/" + scraper.getMapValue(stop, scraper.Left);
             System.out.println(ending);
-            scraper.Timetable(ending, 0);
+            scraper.Timetable();
             //System.out.println(scraper.getMapValue(stop, scraper.Left));
         }
         else {
             System.out.println("Pick ur stop");
-            stop = s.next();
+            stop = s.nextLine();
             String ending = line + "/" + scraper.getMapValue(stop, scraper.Right);
             System.out.println(ending);
-            scraper.Timetable(ending, 0);
+            scraper.Timetable();
             //System.out.println(scraper.getMapValue(stop, scraper.Right));
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        scraper.Lines();
+        scraper.Station();
+        scraper.Timetable();
     }
 }

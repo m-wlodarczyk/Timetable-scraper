@@ -9,34 +9,33 @@ import java.util.regex.Pattern;
 
 public class Scraper {
 
-    private String urlEnding;
+    private static String url;
     static ArrayList<String> direction;
     Set<String> tram_lines;
     Set<String> bus_lines;
     static Map<String, String> Left;
     static Map<String, String> Right;
 
-    void printMap(Map<String, String> m){
+    static void printMap(Map<String, String> m){
         for (Map.Entry<String, String> entry : m.entrySet()) {
             System.out.println(entry.getKey()/*+" : "+entry.getValue()*/);
         }
     }
 
-    String getMapValue(String key, Map<String, String> m){
+    static String getMapValue(String key, Map<String, String> m){
         return m.get(key);
     }
 
     public Scraper(){
-        urlEnding = new String();
+        url = "http://www.mpk.poznan.pl/component/transport/";
         direction = new ArrayList<String>(2);
         tram_lines = new LinkedHashSet<String>();
         bus_lines = new LinkedHashSet<String>();
-        Left = new HashMap<String, String>();
-        Right = new HashMap<String, String>();
+        Left = new LinkedHashMap<String, String>();
+        Right = new LinkedHashMap<String, String>();
     }
 
-    static void Timetable(String station, int type) throws IOException {
-        String url = "http://www.mpk.poznan.pl/component/transport/" + station + "/";
+    static void Timetable() throws IOException {
         final Document document = Jsoup.connect(url).get();
         ArrayList<String> Hours = new ArrayList<String>();
         ArrayList<String> Minutes = new ArrayList<String>();
@@ -70,38 +69,15 @@ public class Scraper {
             }
         }
 
-        /*System.out.println(workdays);
-        System.out.println(saturdays);
-        System.out.println(sundays);*/
-        /*for (Map.Entry<String, String> entry : sundays.entrySet()) {
-            System.out.println(entry.getKey() + ":" + entry.getValue().toString());
-        }*/
-        switch (type){
-            case 0:
-                for (int i=0; i<24; i++) {
-                    System.out.println(i + " :  " + workdays.get(Integer.toString(i)));
-                }
-                break;
-            case 1:
-                for (int i=0; i<24; i++) {
-                    System.out.println(i + " :  " + saturdays.get(Integer.toString(i)));
-                }
-                break;
-            case 2:
-                for (int i=0; i<24; i++) {
-                    System.out.println(i + " :  " + sundays.get(Integer.toString(i)));
-                }
-                break;
-            default:
-                break;
+        for (int i=0; i<24; i++) {
+            System.out.println(i + " :  " + workdays.get(Integer.toString(i)));
         }
+
     }
 
-    static void Station(String lineNr) throws IOException{
+    static void Station() throws IOException{
         int counter = 0;
-        String url = "http://www.mpk.poznan.pl/component/transport/" + lineNr + "/";
         final Document document = Jsoup.connect(url).get();
-
         for (Element row : document.select(".box_t_0 li")){
             counter++;
             if (counter <= 2) {
@@ -129,6 +105,23 @@ public class Scraper {
                 Right.put(row.text(), matcher.group(0));
             }
         }
+        System.out.println("1 - " + direction.get(0));
+        System.out.println("2 - " + direction.get(1));
+        int pick = chooseDir();
+        showStops(pick);
+        String stopName = pickStation();
+        switch(pick){
+            case 1:
+                url = url + getMapValue(stopName, Left);
+                System.out.println(url);
+                break;
+            case 2:
+                url = url + getMapValue(stopName, Right);
+                System.out.println(url);
+                break;
+            default:
+                break;
+        }
     }
 
     void Lines() throws IOException{
@@ -143,5 +136,47 @@ public class Scraper {
             bus_lines.add(one_row);
         }
         System.out.println(bus_lines);
+        pickLine();
+    }
+
+    void pickLine(){
+        System.out.println("Choose line: ");
+        String chosenLine = new String();
+        Scanner scanner = new Scanner(System.in);
+        chosenLine = scanner.nextLine();
+        url = url + chosenLine + "/";
+    }
+
+    static String pickStation(){
+        System.out.println("Choose stop: ");
+        String chosenStop = new String();
+        Scanner scanner = new Scanner(System.in);
+        chosenStop = scanner.nextLine();
+        return chosenStop;
+    }
+
+    static int chooseDir(){
+        int dir;
+        Scanner scanner = new Scanner(System.in);
+        dir = Integer.parseInt(scanner.nextLine());
+        return dir;
+    }
+
+    static void showStops(int pick){
+        switch(pick){
+            case 1:
+                printMap(Left);
+                break;
+            case 2:
+                printMap(Right);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }
