@@ -5,17 +5,21 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Scraper {
+public class Scraper_old {
 
     private static Document document;
     private static String url;
     static ArrayList<String> direction;
+    Set<String> tram_lines;
+    Set<String> bus_lines;
     static Map<String, String> Left;
     static Map<String, String> Right;
 
@@ -29,12 +33,17 @@ public class Scraper {
         return m.get(key);
     }
 
-    public Scraper(){
+    public Scraper_old(){
         url = "http://www.mpk.poznan.pl/component/transport/";
+        direction = new ArrayList<String>(2);
+        tram_lines = new LinkedHashSet<String>();
+        bus_lines = new LinkedHashSet<String>();
+        Left = new LinkedHashMap<String, String>();
+        Right = new LinkedHashMap<String, String>();
         document = null;
     }
 
-    static void getTimetable() throws IOException {
+    static void Timetable() throws IOException {
         document = Jsoup.connect(url).get();
         ArrayList<String> Hours = new ArrayList<String>();
         ArrayList<String> Minutes = new ArrayList<String>();
@@ -74,51 +83,77 @@ public class Scraper {
 
     }
 
-    static void getStations(Station station, String lineNumber) throws IOException {
+    static void Station() throws IOException{
         int counter = 0;
-        url = url + lineNumber + "/";
         document = Jsoup.connect(url).get();
         for (Element row : document.select(".box_t_0 li")){
             counter++;
             if (counter <= 2) {
-                station.putDirection(row.text(), 0);
+                direction.add(0, row.text());
                 continue;
             }
             final String one_row = row.outerHtml();
             Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
             Matcher matcher = pattern.matcher(one_row);
             if (matcher.find()) {
-                String _row = row.text();
-                station.putLeft(_row, matcher.group(0));
+                Left.put(row.text(), matcher.group(0));
             }
         }
         counter = 0;
         for (Element row : document.select(".box_t_1 li")) {
             counter++;
             if (counter <= 2) {
-                station.putDirection(row.text(), 1);
+                direction.add(1, row.text());
                 continue;
             }
             final String one_row = row.outerHtml();
             Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
             Matcher matcher = pattern.matcher(one_row);
             if (matcher.find()) {
-                station.putRight(row.text(), matcher.group(0));
+                Right.put(row.text(), matcher.group(0));
             }
         }
-
+        System.out.println("1 - " + direction.get(0));
+        System.out.println("2 - " + direction.get(1));
+        int pick = chooseDir();
+        showStops(pick);
+        String stopName = pickStation();
+        switch(pick){
+            case 1:
+                url = url + getMapValue(stopName, Left);
+                System.out.println(url);
+                break;
+            case 2:
+                url = url + getMapValue(stopName, Right);
+                System.out.println(url);
+                break;
+            default:
+                break;
+        }
     }
 
-    void getLines(Lines lines) throws IOException{
+    String Lines() throws IOException{
         document = Jsoup.connect("http://www.mpk.poznan.pl/rozklad-jazdy").get();
         for (Element row : document.select(".box_trams a")){
             final String one_row = row.text();
-            lines.addTram(one_row);
+            tram_lines.add(one_row);
         }
+        System.out.println(tram_lines);
         for (Element row : document.select(".box_buses a")){
             final String one_row = row.text();
-            lines.addBus(one_row);
+            bus_lines.add(one_row);
         }
+        System.out.println(bus_lines);
+        return pickLine();
+    }
+
+    String pickLine(){
+        System.out.println("Choose line: ");
+        String chosenLine = new String();
+        Scanner scanner = new Scanner(System.in);
+        chosenLine = scanner.nextLine();
+        url = url + chosenLine + "/";
+        return chosenLine;
     }
 
     static String pickStation(){
