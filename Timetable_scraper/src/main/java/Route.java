@@ -4,11 +4,11 @@ import java.util.Map;
 
 public class Route {
 
-    private String lineNumber;
+    private int lineNumber;
     private static Map<String, String> Left;
     private static Map<String, String> Right;
     private ArrayList<String> direction;
-    private type Type;
+    private Type Type;
 
     public Route() {
         Left = new LinkedHashMap<String, String>();
@@ -16,12 +16,19 @@ public class Route {
         direction = new ArrayList<String>();
     }
 
-    public Route(type Type, String lineNumber){
+    public Route(Type Type, String lineNumber){
         Left = new LinkedHashMap<String, String>();
         Right = new LinkedHashMap<String, String>();
         direction = new ArrayList<String>();
         this.Type = Type;
-        this.lineNumber = lineNumber;
+        this.lineNumber = Integer.parseInt(lineNumber);
+    }
+
+    public void setLineNumber(String lineNumber) {
+        this.lineNumber = Integer.parseInt(lineNumber);
+        if (this.lineNumber < 29) {
+
+        }
     }
 
     public void putDirection(String dir, int index) {

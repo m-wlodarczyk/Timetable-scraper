@@ -14,7 +14,7 @@ public class Station extends Route {
         sundays = new HashMap<String, String>();
     }
 
-    public Station(type Type, String lineNumber, String stationName) {
+    public Station(Type Type, String lineNumber, String stationName) {
         super(Type, lineNumber);
         this.stationName = stationName;
         workdays = new HashMap<String, String>();

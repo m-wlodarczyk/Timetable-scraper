@@ -1,54 +1,28 @@
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Lines {
 
-    private Set<String> tram_lines;
-    private Set<String> bus_lines;
+    private Map<String, Type> lines;
 
     public Lines() {
-        tram_lines = new LinkedHashSet<String>();
-        bus_lines = new LinkedHashSet<String>();
+        lines = new LinkedHashMap<String, Type>();
     }
 
-    public Set<String> getTramLines(){
-        return tram_lines;
+    public Map<String, Type> getLines(){
+        return lines;
     }
 
-    public Set<String> getBusLines(){
-        return bus_lines;
+    void addLine(String tram, Type type) {
+        lines.put(tram, type);
     }
 
-    void addTram(String tram) {
-        tram_lines.add(tram);
-    }
-
-    void addBus(String bus) {
-        bus_lines.add(bus);
+    Type getType(String key) {
+        return lines.get(key);
     }
 
     void printLines() {
-        int i=0;
-        System.out.println("Tram lines:");
-        for (String s : tram_lines) {
-            i++;
-            if (i%8==0){
-                System.out.println();
-                i=0;
-            }
-            System.out.print(s + " ");
-        }
-        i=0;
-        System.out.println("\nBus lines:");
-        for (String s : bus_lines) {
-            i++;
-            if (i%8==0){
-                System.out.println();
-                i=0;
-            }
-            System.out.print(s + " ");
-        }
-        System.out.println();
+        
     }
 
 }

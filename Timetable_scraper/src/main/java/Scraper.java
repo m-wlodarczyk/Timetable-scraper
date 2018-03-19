@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,19 +13,6 @@ public class Scraper {
 
     private static Document document;
     private static String url;
-    static ArrayList<String> direction;
-    static Map<String, String> Left;
-    static Map<String, String> Right;
-
-    static void printMap(Map<String, String> m){
-        for (Map.Entry<String, String> entry : m.entrySet()) {
-            System.out.println(entry.getKey()/*+" : "+entry.getValue()*/);
-        }
-    }
-
-    static String getMapValue(String key, Map<String, String> m){
-        return m.get(key);
-    }
 
     public Scraper(){
         url = "http://www.mpk.poznan.pl/component/transport/";
@@ -68,10 +53,6 @@ public class Scraper {
             }
         }
 
-        for (int i=0; i<24; i++) {
-            System.out.println(i + " :  " + workdays.get(Integer.toString(i)));
-        }
-
     }
 
     static void getStations(Station station, String lineNumber) throws IOException {
@@ -89,7 +70,7 @@ public class Scraper {
             Matcher matcher = pattern.matcher(one_row);
             if (matcher.find()) {
                 String _row = row.text();
-                station.putLeft(_row, matcher.group(0));
+                station.putLeft(row.text(), matcher.group(0));
             }
         }
         counter = 0;
@@ -113,39 +94,12 @@ public class Scraper {
         document = Jsoup.connect("http://www.mpk.poznan.pl/rozklad-jazdy").get();
         for (Element row : document.select(".box_trams a")){
             final String one_row = row.text();
-            lines.addTram(one_row);
+            lines.addLine(one_row, Type.tram);
         }
         for (Element row : document.select(".box_buses a")){
             final String one_row = row.text();
-            lines.addBus(one_row);
+            lines.addLine(one_row, Type.bus);
         }
     }
 
-    static String pickStation(){
-        System.out.println("Choose stop: ");
-        String chosenStop = new String();
-        Scanner scanner = new Scanner(System.in);
-        chosenStop = scanner.nextLine();
-        return chosenStop;
-    }
-
-    static int chooseDir(){
-        int dir;
-        Scanner scanner = new Scanner(System.in);
-        dir = Integer.parseInt(scanner.nextLine());
-        return dir;
-    }
-
-    static void showStops(int pick){
-        switch(pick){
-            case 1:
-                printMap(Left);
-                break;
-            case 2:
-                printMap(Right);
-                break;
-            default:
-                break;
-        }
-    }
 }
