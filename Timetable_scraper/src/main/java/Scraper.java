@@ -4,8 +4,6 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,13 +17,12 @@ public class Scraper {
         document = null;
     }
 
-    static void getTimetable() throws IOException {
+    static void getTimetable(Station station, String stationName) throws IOException {
+        station.setStationName(stationName);
+
         document = Jsoup.connect(url).get();
         ArrayList<String> Hours = new ArrayList<String>();
         ArrayList<String> Minutes = new ArrayList<String>();
-        Map<String, String> workdays = new HashMap<String, String>();
-        Map<String, String> saturdays = new HashMap<String, String>();
-        Map<String, String> sundays = new HashMap<String, String>();
 
         for (Element row : document.select("td.MpkHours")){
             final String one_row = row.text();
@@ -34,7 +31,6 @@ public class Scraper {
         for (Element row : document.select("td.MpkMinutes")){
             final String one_row = row.text();
             Minutes.add(one_row);
-            //System.out.println(one_row);
         }
         for (int i=0, j=0 ; i<Hours.size(); i++, j++) {
             if (j>2){
@@ -42,13 +38,13 @@ public class Scraper {
             }
             switch (j){
                 case 0:
-                    workdays.put(Hours.get(i), Minutes.get(i));
+                    station.workdaysPut(Hours.get(i), Minutes.get(i));
                     break;
                 case 1:
-                    saturdays.put(Hours.get(i), Minutes.get(i));
+                    station.saturdaysPut(Hours.get(i), Minutes.get(i));
                     break;
                 case 2:
-                    sundays.put(Hours.get(i), Minutes.get(i));
+                    station.sundaysPut(Hours.get(i), Minutes.get(i));
                     break;
             }
         }
@@ -59,17 +55,19 @@ public class Scraper {
         int counter = 0;
         url = url + lineNumber + "/";
         document = Jsoup.connect(url).get();
+        Pattern pattern;
+        Matcher matcher;
+        String one_row;
         for (Element row : document.select(".box_t_0 li")){
             counter++;
             if (counter <= 2) {
                 station.putDirection(row.text(), 0);
                 continue;
             }
-            final String one_row = row.outerHtml();
-            Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
-            Matcher matcher = pattern.matcher(one_row);
+            one_row = row.outerHtml();
+            pattern = Pattern.compile("[A-Z]+[0-9]+");
+            matcher = pattern.matcher(one_row);
             if (matcher.find()) {
-                String _row = row.text();
                 station.putLeft(row.text(), matcher.group(0));
             }
         }
@@ -80,9 +78,9 @@ public class Scraper {
                 station.putDirection(row.text(), 1);
                 continue;
             }
-            final String one_row = row.outerHtml();
-            Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
-            Matcher matcher = pattern.matcher(one_row);
+            one_row = row.outerHtml();
+            pattern = Pattern.compile("[A-Z]+[0-9]+");
+            matcher = pattern.matcher(one_row);
             if (matcher.find()) {
                 station.putRight(row.text(), matcher.group(0));
             }

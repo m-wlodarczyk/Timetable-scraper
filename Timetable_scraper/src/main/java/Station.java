@@ -1,5 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Station extends Route {
 
@@ -20,6 +21,10 @@ public class Station extends Route {
         workdays = new HashMap<String, String>();
         saturdays = new HashMap<String, String>();
         sundays = new HashMap<String, String>();
+    }
+
+    public void setStationName(String stationName) {
+        this.stationName = stationName;
     }
 
     public String getStationName() {

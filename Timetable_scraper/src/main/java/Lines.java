@@ -17,12 +17,23 @@ public class Lines {
         lines.put(tram, type);
     }
 
-    Type getType(String key) {
+    Type checkType(String key) {
         return lines.get(key);
     }
 
     void printLines() {
-        
+        System.out.println("Tram lines: ");
+        for (Map.Entry<String, Type> entry : lines.entrySet()) {
+            if (entry.getValue()==Type.tram) {
+                System.out.print(entry.getKey());
+            }
+        }
+        System.out.println("Bus lines: ");
+        for (Map.Entry<String, Type> entry : lines.entrySet()) {
+            if (entry.getValue()==Type.bus) {
+                System.out.print(entry.getKey());
+            }
+        }
     }
 
 }

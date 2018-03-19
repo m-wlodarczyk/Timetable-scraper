@@ -15,9 +15,16 @@ public class mainClass {
         return scanner.nextLine();
     }
 
+    public static String pickStop() {
+        System.out.print("Choose stop: ");
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
+
     public static void main(String[] args) throws IOException {
         scraper.getLines(lines);
         lines.printLines();
         scraper.getStations(station, pickLine());
+        scraper.getTimetable(station, pickStop());
     }
 }
